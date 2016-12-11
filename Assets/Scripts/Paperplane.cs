@@ -11,6 +11,7 @@ public class Paperplane : MonoBehaviour {
     Vector3 drag_vector;
     float drag_magnitude = 0f;
     const float MAX_SPEED = 6f;
+    const float MIN_SPEED = 0.2f;
 
     Rigidbody _rigidbody;
 
@@ -24,12 +25,17 @@ public class Paperplane : MonoBehaviour {
     float tilt_magnitude;
     float pitch_magnitude;
 
+    [SerializeField]
+    GameObject mainCamera;
 
-	// Use this for initialization
-	void Start () {
+
+    // Use this for initialization
+    void Start () {
         _rigidbody = GetComponent<Rigidbody>();
         _rigidbody.AddForce(transform.forward * MAX_SPEED/1.5f, ForceMode.VelocityChange);
         //paper = GetComponentInChildren<Transform>();
+        if (!mainCamera)
+            mainCamera = GameObject.FindGameObjectWithTag("MainCamera");
     }
 
     // Update is called once per frame
@@ -76,13 +82,17 @@ public class Paperplane : MonoBehaviour {
             _rigidbody.AddForce(transform.up * pitch_magnitude * _rigidbody.velocity.magnitude, ForceMode.Acceleration);
             _rigidbody.AddTorque(transform.right * -pitch_magnitude * _rigidbody.velocity.magnitude / MAX_SPEED, ForceMode.Acceleration);
 
-            if (_rigidbody.velocity.magnitude < 0.1f)
+            if (_rigidbody.velocity.magnitude < MIN_SPEED)
                 transform.LookAt(Vector3.Lerp(transform.position + transform.forward, transform.position + Vector3.down, Time.deltaTime * 5));
             else
                 transform.LookAt(transform.position + _rigidbody.velocity);
             //transform.LookAt(Vector3.Lerp(transform.position + transform.forward, transform.position + _rigidbody.velocity, Time.deltaTime * 200));
 
             VisualTilt();
+        }
+        else
+        {
+            mainCamera.transform.LookAt(transform);
         }
         
         Logging();   
@@ -129,16 +139,18 @@ public class Paperplane : MonoBehaviour {
         {
             collided = true;
             _rigidbody.velocity = -_rigidbody.velocity * 0.5f;
+            mainCamera.transform.parent = transform.parent;
+            Time.timeScale = 0.5f;
         }
     }
-    void OnCollisionEnter(Collision collision)
+    /*void OnCollisionEnter(Collision collision)
     {
         if (!collided)
         {
             collided = true;
             //_rigidbody.velocity = -_rigidbody.velocity * 0.8f;
         }
-    }
+    }*/
 
     void Logging()
     {
