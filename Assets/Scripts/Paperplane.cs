@@ -25,12 +25,17 @@ public class Paperplane : MonoBehaviour {
     float tilt_magnitude;
     float pitch_magnitude;
 
+    [SerializeField]
+    GameObject mainCamera;
 
-	// Use this for initialization
-	void Start () {
+
+    // Use this for initialization
+    void Start () {
         _rigidbody = GetComponent<Rigidbody>();
         _rigidbody.AddForce(transform.forward * MAX_SPEED/1.5f, ForceMode.VelocityChange);
         //paper = GetComponentInChildren<Transform>();
+        if (!mainCamera)
+            mainCamera = GameObject.FindGameObjectWithTag("MainCamera");
     }
 
     // Update is called once per frame
@@ -85,6 +90,10 @@ public class Paperplane : MonoBehaviour {
 
             VisualTilt();
         }
+        else
+        {
+            mainCamera.transform.LookAt(transform);
+        }
         
         Logging();   
 	}
@@ -130,16 +139,18 @@ public class Paperplane : MonoBehaviour {
         {
             collided = true;
             _rigidbody.velocity = -_rigidbody.velocity * 0.5f;
+            mainCamera.transform.parent = transform.parent;
+            Time.timeScale = 0.5f;
         }
     }
-    void OnCollisionEnter(Collision collision)
+    /*void OnCollisionEnter(Collision collision)
     {
         if (!collided)
         {
             collided = true;
             //_rigidbody.velocity = -_rigidbody.velocity * 0.8f;
         }
-    }
+    }*/
 
     void Logging()
     {
