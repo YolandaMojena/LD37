@@ -7,6 +7,12 @@ public class Kimmidoll : MonoBehaviour {
     Transform LArm;
     [SerializeField]
     Transform RArm;
+    [SerializeField]
+    MeshRenderer Hair;
+
+    [SerializeField]
+    private bool gender;
+    private Color hairColor;
 
     Quaternion LInitialRotation;
     Quaternion RInitialRotation;
@@ -29,7 +35,7 @@ public class Kimmidoll : MonoBehaviour {
         LInitialRotation = LArm.rotation;
         RInitialRotation = RArm.rotation;
         initialRotation = transform.rotation;
-        BecomeExcited();
+        //BecomeExcited();
         //StopExcitement();
 	}
 	
@@ -115,6 +121,13 @@ public class Kimmidoll : MonoBehaviour {
     public void StopExcitement()
     {
         excited = false;
+    }
+
+    public void SetHairColor(Color c)
+    {
+        hairColor = c;
+        Hair.material.SetColor("_EmissionColor", c);
+
     }
 
 }

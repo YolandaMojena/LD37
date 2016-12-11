@@ -11,6 +11,7 @@ public class Paperplane : MonoBehaviour {
     Vector3 drag_vector;
     float drag_magnitude = 0f;
     const float MAX_SPEED = 6f;
+    const float MIN_SPEED = 0.2f;
 
     Rigidbody _rigidbody;
 
@@ -76,7 +77,7 @@ public class Paperplane : MonoBehaviour {
             _rigidbody.AddForce(transform.up * pitch_magnitude * _rigidbody.velocity.magnitude, ForceMode.Acceleration);
             _rigidbody.AddTorque(transform.right * -pitch_magnitude * _rigidbody.velocity.magnitude / MAX_SPEED, ForceMode.Acceleration);
 
-            if (_rigidbody.velocity.magnitude < 0.1f)
+            if (_rigidbody.velocity.magnitude < MIN_SPEED)
                 transform.LookAt(Vector3.Lerp(transform.position + transform.forward, transform.position + Vector3.down, Time.deltaTime * 5));
             else
                 transform.LookAt(transform.position + _rigidbody.velocity);
