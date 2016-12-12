@@ -38,7 +38,7 @@ public class Sensei : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
 
-        if (waveTimer >= waveFrequency)
+        /*if (waveTimer >= waveFrequency)
         {
             //LaunchStar(turn < 0 ? LeftEye.position : RightEye.position);
             showtime = messagesSent + 1;
@@ -70,12 +70,12 @@ public class Sensei : MonoBehaviour {
         else
         {
             //SmoothLookTowards(FIXED_FORWARD);
-        }
+        }*/
 	}
 
     void FixedUpdate()
     {
-        Head.transform.eulerAngles = new Vector3(Head.transform.eulerAngles.x, Head.transform.eulerAngles.y + Mathf.Sin(Time.time*5f)/7f, Head.transform.eulerAngles.z);
+        Head.transform.eulerAngles = new Vector3(Head.transform.eulerAngles.x, Head.transform.eulerAngles.y + Mathf.Cos(Time.time*5f), Head.transform.eulerAngles.z);
     }
 
     void LaunchStar(Vector3 origin){

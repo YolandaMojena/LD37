@@ -7,16 +7,18 @@ public class Star : MonoBehaviour {
     //private Vector3 targetDir = new Vector3();
     GameObject target;
     Rigidbody targetRigidbody;
+    TrailRenderer trail;
 
     // Use this for initialization
     void Start () {
 
-        velocity = Random.Range(3f, 5f);
+        velocity = Random.Range(2.5f, 3.5f);
         target = GameObject.Find("paperplane");
         targetRigidbody = target.GetComponent<Rigidbody>();
         transform.LookAt(target.transform.position);
+        trail = GetComponentInChildren<TrailRenderer>();
         //targetDir = target.transform.position - transform.position;
-	}
+    }
 	
 	// Update is called once per frame
 	void FixedUpdate () {
@@ -33,7 +35,7 @@ public class Star : MonoBehaviour {
     {
         if (other.transform.parent && other.transform.parent.name != "Sensei")
         {
-            GetComponentInChildren<TrailRenderer>().transform.parent = null;
+            trail.transform.parent = null;
             Destroy(gameObject, 0.2f);
         }
     }
