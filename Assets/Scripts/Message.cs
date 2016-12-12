@@ -28,13 +28,14 @@ public class Message : MonoBehaviour {
 
     void Update()
     {
+
     }
 
     void OnTriggerEnter(Collider other)
     {
         if(!inTransit)
         {
-            if (other.gameObject.name.Contains("paper"))
+            if (other.gameObject.name.Contains("paper") && !GameManager.Plane.delivering)
             {
                 transform.localScale *= 0.5f;
                 transform.rotation = other.transform.rotation;
@@ -42,10 +43,17 @@ public class Message : MonoBehaviour {
                 transform.position = other.transform.position;
                 transform.position += -transform.forward * 0.3f + transform.up*0.074f;
                 transform.eulerAngles += new Vector3(-5f, 0f, 0f);
-                inTransit = true;
 
+                inTransit = true;
                 sender.StopExcitement();
+                GameManager.Plane.delivering = true;
             }
+        }
+        else if(other.gameObject.tag == "DeliveryArea" && other.transform.root.gameObject == destinatary.gameObject)
+        {
+            GameManager.LettersHandedIn++;
+            GameManager.Plane.delivering = false;
+            Destroy(gameObject, 0.2f);
         }
     }
 }

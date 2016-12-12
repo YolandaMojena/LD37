@@ -140,7 +140,6 @@ public class Kimmidoll : MonoBehaviour {
             envelope.transform.SetParent(LHand);
             LHand.eulerAngles += new Vector3(0, -60, 0);
         }
-
         else
         {
             envelope.transform.position = RHand.position + ENVELOPE_OFFSET_RIGHT;

@@ -28,6 +28,7 @@ public class Paperplane : MonoBehaviour {
     [SerializeField]
     GameObject mainCamera;
 
+    public bool delivering;
 
     // Use this for initialization
     void Start () {
@@ -135,15 +136,17 @@ public class Paperplane : MonoBehaviour {
 
     void OnTriggerEnter(Collider other)
     {
-        if (!collided && !other.gameObject.name.Contains("envelope"))
+        if (!collided)
         {
-            collided = true;
-            _rigidbody.velocity = -_rigidbody.velocity * 0.5f;
-            mainCamera.transform.parent = transform.parent;
-            Time.timeScale = 0.5f;
-            GetComponentInChildren<MeshCollider>().isTrigger = false;
-            foreach (TrailRenderer tr in GetComponentsInChildren<TrailRenderer>())
-                tr.enabled = false;
+			if(!other.gameObject.name.Contains("envelope") && other.gameObject.tag != "DeliveryArea") {
+				collided = true;
+				_rigidbody.velocity = -_rigidbody.velocity * 0.5f;
+				mainCamera.transform.parent = transform.parent;
+				Time.timeScale = 0.5f;
+				GetComponentInChildren<MeshCollider>().isTrigger = false;
+				foreach (TrailRenderer tr in GetComponentsInChildren<TrailRenderer>())
+					tr.enabled = false;
+            }
         }
     }
     /*void OnCollisionEnter(Collision collision)
