@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour {
 
@@ -66,9 +67,13 @@ public class GameManager : MonoBehaviour {
     // Use this for initialization
     void Start () {
 
-        Plane = GameObject.Find("paperplane").GetComponent<Paperplane>();
-        Sensei = GameObject.Find("Sensei").GetComponent<Sensei>();
-        messageFrequency = 10 - Mathf.Sqrt(LettersHandedIn);
+        Scene currentScene = SceneManager.GetActiveScene();
+        if(currentScene.name == "Classroom")
+        {
+            Plane = GameObject.Find("paperplane").GetComponent<Paperplane>();
+            Sensei = GameObject.Find("Sensei").GetComponent<Sensei>();
+            messageFrequency = 10 - Mathf.Sqrt(LettersHandedIn);
+        }
     }
 	
 	// Update is called once per frame

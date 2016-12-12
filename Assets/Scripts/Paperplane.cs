@@ -19,7 +19,6 @@ public class Paperplane : MonoBehaviour {
     Transform paper;
     float turbulence = 0;
 
-
     //Controls
     Vector3 mouse_lastPosition;
     float tilt_magnitude;
