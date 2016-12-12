@@ -18,7 +18,7 @@ public class GameManager : MonoBehaviour {
     private Color[] hairColors;
 
     public static Paperplane Plane;
-    public int LettersHandedIn = 0;
+    public static int LettersHandedIn = 0;
     private float timer = 0;
     private float messageFrequency = 0;
 

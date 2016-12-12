@@ -138,13 +138,14 @@ public class Kimmidoll : MonoBehaviour {
             envelope.transform.position = LHand.position + ENVELOPE_OFFSET_LEFT;
             envelope.transform.Rotate(new Vector3(0, 180, 180));
             envelope.transform.SetParent(LHand);
+            LHand.eulerAngles += new Vector3(0, -60, 0);
         }
-
         else
         {
             envelope.transform.position = RHand.position + ENVELOPE_OFFSET_RIGHT;
             envelope.transform.Rotate(new Vector3(0, 0, 180));
             envelope.transform.SetParent(RHand);
+            RHand.eulerAngles += new Vector3(0, 60, 0);
         }    
     }
 }
