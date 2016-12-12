@@ -13,6 +13,8 @@ public class Kimmidoll : MonoBehaviour {
     Transform RHand;
     [SerializeField]
     MeshRenderer Hair;
+    [SerializeField]
+    private GameObject excitedParticles;
 
     public bool gender;
     public Color hairColor;
@@ -40,6 +42,8 @@ public class Kimmidoll : MonoBehaviour {
         LInitialRotation = LArm.rotation;
         RInitialRotation = RArm.rotation;
         initialRotation = transform.rotation;
+        excitedParticles.SetActive(false);
+        
         //BecomeExcited();
         //StopExcitement();
 	}
@@ -114,15 +118,21 @@ public class Kimmidoll : MonoBehaviour {
     public void BecomeExcited()
     {
         excited = true;
+        excitedParticles.SetActive(true);
+        excitedParticles.GetComponent<ParticleSystem>().Play();
 
         if (Random.value > 0.5f)
             LArm_excited = true;
         else
             LArm_excited = false;
+
+
     }
     public void StopExcitement()
     {
         excited = false;
+        excitedParticles.SetActive(true);
+        excitedParticles.GetComponent<ParticleSystem>().Stop();
     }
 
     public void SetHairColor(Color c)
