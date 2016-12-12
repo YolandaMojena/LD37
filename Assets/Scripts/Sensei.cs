@@ -12,31 +12,60 @@ public class Sensei : MonoBehaviour {
     [SerializeField]
     private Transform Head;
 
-    private int turn = 1;
+    private bool turn = true;
     private int messagesSent = 0;
 
     private const float INITIAL_FREQ = 10.0f;
-    private float waveFrequency = 0f;
     [SerializeField]
-    private float waveTimer = 0f;
-    private float showtime = 0f;
-    private float cadency = 0.5f;
-    [SerializeField]
-    private float cooldown = 0f;
+    private float cooldown = 5f;
+
+    private const float WINDUP = 2f;
+    private float windup = 0f;
 
     private Vector3 FIXED_FORWARD;
     private Vector3 FIXED_RIGHT;
+    private Quaternion initialHeadRotation;
+    private Quaternion winkingHeadRotation;
 
     // Use this for initialization
     void Start () {
-        waveFrequency = INITIAL_FREQ;
+        //waveFrequency = INITIAL_FREQ;
 
-        FIXED_FORWARD = transform.up;
+        //FIXED_FORWARD = transform.up;
         //FIXED_RIGHT = transform.
+        initialHeadRotation = Head.rotation;
+        Head.Rotate(Vector3.forward, -70f);
+        winkingHeadRotation = Head.rotation;
+        Head.rotation = initialHeadRotation;
 	}
 	
 	// Update is called once per frame
 	void Update () {
+
+        if (cooldown > 0)
+            cooldown -= Time.deltaTime;
+        else
+        {
+            windup = WINDUP;
+            cooldown = INITIAL_FREQ + WINDUP;
+        }
+
+        if (windup > 0)
+        {
+            windup -= Time.deltaTime;
+            if(windup <= 0)
+            {
+                //LaunchStar(turn ? LeftEye.position : RightEye.position);
+                //turn = !turn;
+                LaunchStar(LeftEye.position);
+            }
+
+            Head.rotation = Quaternion.Lerp(Head.rotation, winkingHeadRotation, Time.deltaTime);
+        }
+        else
+        {
+            Head.rotation = Quaternion.Lerp(Head.rotation, initialHeadRotation, Time.deltaTime);
+        }
 
         /*if (waveTimer >= waveFrequency)
         {
