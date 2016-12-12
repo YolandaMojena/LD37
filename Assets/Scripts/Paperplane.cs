@@ -141,6 +141,9 @@ public class Paperplane : MonoBehaviour {
             _rigidbody.velocity = -_rigidbody.velocity * 0.5f;
             mainCamera.transform.parent = transform.parent;
             Time.timeScale = 0.5f;
+            GetComponentInChildren<MeshCollider>().isTrigger = false;
+            foreach (TrailRenderer tr in GetComponentsInChildren<TrailRenderer>())
+                tr.enabled = false;
         }
     }
     /*void OnCollisionEnter(Collision collision)
