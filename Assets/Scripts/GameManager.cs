@@ -17,6 +17,8 @@ public class GameManager : MonoBehaviour {
     [SerializeField]
     private Color[] hairColors;
 
+    public static Sensei Sensei;
+
     public static Paperplane Plane;
     public static int LettersHandedIn = 0;
     private float timer = 0;
@@ -65,6 +67,7 @@ public class GameManager : MonoBehaviour {
     void Start () {
 
         Plane = GameObject.Find("paperplane").GetComponent<Paperplane>();
+        Sensei = GameObject.Find("Sensei").GetComponent<Sensei>();
         messageFrequency = 10 - Mathf.Sqrt(LettersHandedIn);
     }
 	
@@ -83,19 +86,28 @@ public class GameManager : MonoBehaviour {
 
     void GenerateMessage()
     {
-        Kimmidoll sender = pupils[Random.Range(0, pupils.Count - 1)];
+        /*Kimmidoll sender = pupils[Random.Range(0, pupils.Count - 1)];
         while(sender.excited)
-            sender = pupils[Random.Range(0, pupils.Count - 1)];
+            sender = pupils[Random.Range(0, pupils.Count - 1)];*/
 
-        Kimmidoll destinatary = pupils[Random.Range(0, pupils.Count - 1)];
-        while(destinatary == sender)
-            destinatary = pupils[Random.Range(0, pupils.Count - 1)];
+        List<Kimmidoll> potentialSenders = new List<Kimmidoll>();
+        foreach (Kimmidoll ps in pupils)
+            if (!ps.excited)
+                potentialSenders.Add(ps);
 
-        // Place envelope in hand
-        GameObject newMessage = Instantiate(envelope) as GameObject;
-        newMessage.GetComponent<Message>().SetToradoreo(!destinatary.gender ? male : female, destinatary.hairColor, sender, destinatary);
-        sender.BecomeExcited();
-        sender.HoldMessage(newMessage);
+        if (potentialSenders.Count > 0)
+        {
+            Kimmidoll sender = potentialSenders[Random.Range(0, potentialSenders.Count - 1)];
+            Kimmidoll destinatary = pupils[Random.Range(0, pupils.Count - 1)];
+            while (destinatary == sender)
+                destinatary = pupils[Random.Range(0, pupils.Count - 1)];
+
+            // Place envelope in hand
+            GameObject newMessage = Instantiate(envelope) as GameObject;
+            newMessage.GetComponent<Message>().SetToradoreo(!destinatary.gender ? male : female, destinatary.hairColor, sender, destinatary);
+            sender.BecomeExcited();
+            sender.HoldMessage(newMessage);
+        }
     }
 
     void SpawnBoy(Vector3 position)

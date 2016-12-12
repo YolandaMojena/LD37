@@ -29,6 +29,7 @@ public class Paperplane : MonoBehaviour {
     GameObject mainCamera;
 
     public bool delivering;
+    public Kimmidoll destinatary;
 
     // Use this for initialization
     void Start () {
@@ -138,11 +139,14 @@ public class Paperplane : MonoBehaviour {
     {
         if (!collided)
         {
-            if(!other.gameObject.name.Contains("envelope") && other.gameObject.tag != "DeliveryArea") {
-                collided = true;
-                _rigidbody.velocity = -_rigidbody.velocity * 0.5f;
-                mainCamera.transform.parent = transform.parent;
-                Time.timeScale = 0.5f;
+			if(!other.gameObject.name.Contains("envelope") && other.gameObject.tag != "DeliveryArea") {
+				collided = true;
+				_rigidbody.velocity = -_rigidbody.velocity * 0.5f;
+				mainCamera.transform.parent = transform.parent;
+				Time.timeScale = 0.5f;
+				GetComponentInChildren<MeshCollider>().isTrigger = false;
+				foreach (TrailRenderer tr in GetComponentsInChildren<TrailRenderer>())
+					tr.enabled = false;
             }
         }
     }
