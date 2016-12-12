@@ -26,6 +26,10 @@ public class Paperplane : MonoBehaviour {
 
     [SerializeField]
     GameObject mainCamera;
+    [SerializeField]
+    GameObject reset;
+    [SerializeField]
+    GameObject tutorial;
 
     public bool delivering;
     public Kimmidoll destinatary;
@@ -146,6 +150,7 @@ public class Paperplane : MonoBehaviour {
 				GetComponentInChildren<MeshCollider>().isTrigger = false;
 				foreach (TrailRenderer tr in GetComponentsInChildren<TrailRenderer>())
 					tr.enabled = false;
+                StartCoroutine(DisplayReset());
             }
         }
     }
@@ -164,5 +169,12 @@ public class Paperplane : MonoBehaviour {
         //Debug.Log("Velocity: " + _rigidbody.velocity.magnitude + " Lift: " + lift_magnitude + " Drag: " + drag_magnitude);
         //Debug.Log("Tilt: " + tilt_magnitude + " Pitch: " + pitch_magnitude);
         //Debug.Log(paper.rotation.eulerAngles.z + ", " + -tilt_magnitude * 60f);
+    }
+
+    IEnumerator DisplayReset()
+    {
+        yield return new WaitForSecondsRealtime(4.0f);
+        tutorial.SetActive(false);
+        reset.SetActive(true);
     }
 }

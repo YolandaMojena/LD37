@@ -22,6 +22,7 @@ public class GameManager : MonoBehaviour {
 
     public static Paperplane Plane;
     public static int LettersHandedIn = 0;
+    public static bool firstTime = true;
     private float timer = 0;
     private float messageFrequency = 0;
 
@@ -74,10 +75,12 @@ public class GameManager : MonoBehaviour {
             Sensei = GameObject.Find("Sensei").GetComponent<Sensei>();
             messageFrequency = 10 - Mathf.Sqrt(LettersHandedIn);
         }
+        LettersHandedIn = 0;
+        Time.timeScale = 1;
     }
-	
-	// Update is called once per frame
-	void Update () {
+
+    // Update is called once per frame
+    void Update () {
 
         if (timer >= messageFrequency)
         {
@@ -138,5 +141,20 @@ public class GameManager : MonoBehaviour {
     void AddKimmidoll(Kimmidoll newPupil)
     {
         pupils.Add(newPupil);
+    }
+
+    public void LoadGameScene()
+    {
+        SceneManager.LoadScene("Classroom", LoadSceneMode.Single);
+    }
+
+    public void ExitGame()
+    {
+        Application.Quit();
+    }
+
+    public void ResetGame()
+    {
+        SceneManager.LoadScene(SceneManager.GetActiveScene().name, LoadSceneMode.Single);
     }
 }

@@ -16,14 +16,4 @@ public class GameStart : MonoBehaviour {
 
         transform.Rotate(new Vector3(0, velY * Time.deltaTime, 0));
 	}
-
-    public void LoadGameScene()
-    {
-        SceneManager.LoadScene("Classroom", LoadSceneMode.Single);
-    }
-
-    public void ExitGame()
-    {
-        Application.Quit();
-    }
 }
