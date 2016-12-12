@@ -19,6 +19,8 @@ public class Paperplane : MonoBehaviour {
     Transform paper;
     float turbulence = 0;
 
+    AudioSource audio;
+
 
     //Controls
     Vector3 mouse_lastPosition;
@@ -34,17 +36,23 @@ public class Paperplane : MonoBehaviour {
     // Use this for initialization
     void Start () {
         _rigidbody = GetComponent<Rigidbody>();
-        _rigidbody.AddForce(transform.forward * MAX_SPEED/1.5f, ForceMode.VelocityChange);
+        _rigidbody.AddForce(transform.forward /* MAX_SPEED/1.5f*/, ForceMode.VelocityChange);
         //paper = GetComponentInChildren<Transform>();
         if (!mainCamera)
             mainCamera = GameObject.FindGameObjectWithTag("MainCamera");
+        audio = GetComponent<AudioSource>();
     }
 
     // Update is called once per frame
     void FixedUpdate() {
 
+        
+
         if (!collided)
         {
+            audio.pitch = 0.5f + 2f * _rigidbody.velocity.magnitude / MAX_SPEED;
+            audio.volume = 0.75f * _rigidbody.velocity.magnitude / MAX_SPEED;
+
             if (Input.GetKeyDown(KeyCode.Space))
                 _rigidbody.AddForce(_rigidbody.velocity.normalized * MAX_SPEED / 1.5f, ForceMode.VelocityChange);
             if (Input.GetKeyDown(KeyCode.LeftControl))
@@ -137,9 +145,10 @@ public class Paperplane : MonoBehaviour {
 
     void OnTriggerEnter(Collider other)
     {
+        
         if (!collided)
         {
-			if(!other.gameObject.name.Contains("envelope") && other.gameObject.tag != "DeliveryArea") {
+			if(!other.gameObject.name.Contains("envelope") && other.gameObject.tag != "DeliveryArea" && other.gameObject.tag != "Star") {
 				collided = true;
 				_rigidbody.velocity = -_rigidbody.velocity * 0.5f;
 				mainCamera.transform.parent = transform.parent;
@@ -147,8 +156,28 @@ public class Paperplane : MonoBehaviour {
 				GetComponentInChildren<MeshCollider>().isTrigger = false;
 				foreach (TrailRenderer tr in GetComponentsInChildren<TrailRenderer>())
 					tr.enabled = false;
+                audio.pitch = 0.5f * 2f * _rigidbody.velocity.magnitude / MAX_SPEED;
+                audio.volume = 0.25f * 2f * _rigidbody.velocity.magnitude / MAX_SPEED;
             }
         }
+    }
+    void OnTriggerStay(Collider other)
+    {
+        if (other.gameObject.tag == "Star")
+        {
+            //THIS IS OK
+            float star_force = 100f;
+            Vector3 accelerationDirection = (other.transform.forward + transform.forward).normalized;
+            //star_force /= 10f*(Vector3.Dot(other.transform.forward, transform.forward)+1f)/2f;
+            _rigidbody.AddForce(accelerationDirection * star_force * Time.deltaTime, ForceMode.Acceleration);
+            /*float star_force = 400f;
+            //Vector3 accelerationDirection = (other.transform.forward + transform.forward).normalized;
+            //star_force /= 10f * (Vector3.Dot(other.transform.forward, transform.forward) + 1f) / 2f;
+            _rigidbody.AddForce(transform.forward * star_force * Time.deltaTime, ForceMode.Acceleration);*/
+        }
+
+        if (transform.position.y < 0)
+            transform.position += new Vector3(0f, -transform.position.y, 0f);
     }
     /*void OnCollisionEnter(Collision collision)
     {
