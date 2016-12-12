@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 public class GameManager : MonoBehaviour {
 
@@ -15,16 +16,28 @@ public class GameManager : MonoBehaviour {
     private GameObject boyDoll;
     [SerializeField]
     private GameObject girlDoll;
+
+    
+    private static AudioSource audioSource;
+    private static bool muted = false;
+    //[SerializeField]
+    //private AudioClip audioClip;
+    
     [SerializeField]
     private Color[] hairColors;
+    
 
     public static Sensei Sensei;
 
     public static Paperplane Plane;
     public static int LettersHandedIn = 0;
+    public static int Score = 0;
+    private static Text scoreText;
     public static bool firstTime = true;
     private float timer = 0;
     private float messageFrequency = 0;
+    private const float BASE_FREQ = 12f;
+    private const float FREQ_DECAY = 0.5f;
 
     private List<Color> boyColors;
     private List<Color> girlColors;
@@ -44,6 +57,8 @@ public class GameManager : MonoBehaviour {
         pupils = new List<Kimmidoll>();
         boyColors = new List<Color>(hairColors);
         girlColors = new List<Color>(hairColors);
+        audioSource = GetComponent<AudioSource>();
+        audioSource.mute = muted;
 
         foreach (GameObject chair in GameObject.FindGameObjectsWithTag("Chair"))
         {
@@ -73,9 +88,20 @@ public class GameManager : MonoBehaviour {
         {
             Plane = GameObject.Find("paperplane").GetComponent<Paperplane>();
             Sensei = GameObject.Find("Sensei").GetComponent<Sensei>();
-            messageFrequency = 10 - Mathf.Sqrt(LettersHandedIn);
+            //messageFrequency = 10 - Mathf.Sqrt(LettersHandedIn);
+            if (firstTime)
+                messageFrequency = BASE_FREQ;
+            else
+                messageFrequency = BASE_FREQ/2f;
+            scoreText = GameObject.Find("Score").GetComponent<Text>();
+        }
+        else
+        {
+            if(muted)
+                GameObject.Find("MuteBtn").GetComponent<Image>().sprite = Resources.Load<Sprite>("Sprites/silentNote");
         }
         LettersHandedIn = 0;
+        Score = 0;
         Time.timeScale = 1;
     }
 
@@ -86,7 +112,8 @@ public class GameManager : MonoBehaviour {
         {
             GenerateMessage();
             timer = 0;
-            messageFrequency = 10 - Mathf.Sqrt(LettersHandedIn);
+            //messageFrequency = 10 - Mathf.Sqrt(LettersHandedIn);
+            messageFrequency = BASE_FREQ - Mathf.Sqrt(LettersHandedIn) * FREQ_DECAY;
         }
         else
             timer += Time.deltaTime;
@@ -115,6 +142,11 @@ public class GameManager : MonoBehaviour {
             newMessage.GetComponent<Message>().SetToradoreo(!destinatary.gender ? male : female, destinatary.hairColor, sender, destinatary);
             sender.BecomeExcited();
             sender.HoldMessage(newMessage);
+        }
+        else
+        {
+            Plane.Death();
+            Plane._rigidbody.velocity = -Plane._rigidbody.velocity; // If you are seeing this, don't take this into consideration. I know it's wrong. But it's a jam. And I'm hungry :D
         }
     }
 
@@ -156,5 +188,26 @@ public class GameManager : MonoBehaviour {
     public void ResetGame()
     {
         SceneManager.LoadScene(SceneManager.GetActiveScene().name, LoadSceneMode.Single);
+    }
+
+    public void BackToMainMenuBtn()
+    {
+        SceneManager.LoadScene(0, LoadSceneMode.Single);
+    }
+
+    public void MuteBtn(GameObject caller)
+    {
+        audioSource.mute = !audioSource.mute;
+        muted = !muted;
+        Image img = caller.GetComponent<Image>();
+        if (img.sprite.name == "note")
+            img.sprite = Resources.Load<Sprite>("Sprites/silentNote");
+        else
+            img.sprite = Resources.Load<Sprite>("Sprites/note");
+    }
+
+    public static void UpdateScoreText()
+    {
+        scoreText.text = Score.ToString();
     }
 }

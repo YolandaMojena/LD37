@@ -60,6 +60,7 @@ public class Message : MonoBehaviour {
                 sender.StopExcitement();
                 GameManager.Plane.delivering = true;
                 GameManager.Plane.destinatary = destinatary;
+                GameManager.Plane.load++;
 
                 audio.clip = pickingClip;
                 audio.Play();
@@ -68,6 +69,9 @@ public class Message : MonoBehaviour {
         else if(other.gameObject.tag == "DeliveryArea" && other.transform.root.gameObject == destinatary.gameObject)
         {
             GameManager.LettersHandedIn++;
+            GameManager.Score += GameManager.Plane.load * 10;
+            GameManager.UpdateScoreText();
+            GameManager.Plane.load--;
             GameManager.Plane.delivering = false;
             GameManager.Plane.destinatary = null;
             GameManager.Sensei.Wink();

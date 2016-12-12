@@ -11,6 +11,9 @@ public class Star : MonoBehaviour {
     Rigidbody targetRigidbody;
     TrailRenderer trail;
 
+    [SerializeField]
+    AudioSource audio;
+
     // Use this for initialization
     void Start () {
 
@@ -22,6 +25,10 @@ public class Star : MonoBehaviour {
         transform.LookAt(target.transform.position);
         trail = GetComponentInChildren<TrailRenderer>();
         //targetDir = target.transform.position - transform.position;
+    }
+
+    void Update(){
+        audio.volume = Mathf.Clamp01(1.33f - Vector3.Distance(transform.position, GameManager.Plane.transform.position)/3f);
     }
 	
 	// Update is called once per frame

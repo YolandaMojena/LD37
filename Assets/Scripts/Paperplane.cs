@@ -13,13 +13,16 @@ public class Paperplane : MonoBehaviour {
     const float MAX_SPEED = 6f;
     const float MIN_SPEED = 0.2f;
 
-    Rigidbody _rigidbody;
+    public Rigidbody _rigidbody;
 
     [SerializeField]
     Transform paper;
     float turbulence = 0;
 
     AudioSource audio;
+
+    [SerializeField]
+    AudioSource deathAudio;
 
     //Controls
     Vector3 mouse_lastPosition;
@@ -32,9 +35,12 @@ public class Paperplane : MonoBehaviour {
     GameObject reset;
     [SerializeField]
     GameObject tutorial;
+    [SerializeField]
+    GameObject proTips;
 
     public bool delivering;
     public Kimmidoll destinatary;
+    public int load = 0;
 
     // Use this for initialization
     void Start () {
@@ -49,17 +55,10 @@ public class Paperplane : MonoBehaviour {
     // Update is called once per frame
     void FixedUpdate() {
 
-        
-
         if (!collided)
         {
             audio.pitch = 0.5f + 2f * _rigidbody.velocity.magnitude / MAX_SPEED;
             audio.volume = 0.75f * _rigidbody.velocity.magnitude / MAX_SPEED;
-
-            if (Input.GetKeyDown(KeyCode.Space))
-                _rigidbody.AddForce(_rigidbody.velocity.normalized * MAX_SPEED / 1.5f, ForceMode.VelocityChange);
-            if (Input.GetKeyDown(KeyCode.LeftControl))
-                collided = true;
 
             tilt_magnitude = Input.mousePosition.x / (Screen.width / 2f) - 1f;// / 50f;
             pitch_magnitude = Input.mousePosition.y / (Screen.height / 2f) - 1f;// / 50f;
@@ -106,6 +105,8 @@ public class Paperplane : MonoBehaviour {
         else
         {
             mainCamera.transform.LookAt(transform);
+            if (transform.position.y < 0f)
+                transform.position = new Vector3(transform.position.x, 0f, transform.position.z);
         }
         
         Logging();   
@@ -152,18 +153,7 @@ public class Paperplane : MonoBehaviour {
         if (!collided)
         {
 			if(!other.gameObject.name.Contains("envelope") && other.gameObject.tag != "DeliveryArea" && other.gameObject.tag != "Star") {
-				collided = true;
-				_rigidbody.velocity = -_rigidbody.velocity * 0.5f;
-				mainCamera.transform.parent = transform.parent;
-				Time.timeScale = 0.5f;
-				GetComponentInChildren<MeshCollider>().isTrigger = false;
-				foreach (TrailRenderer tr in GetComponentsInChildren<TrailRenderer>())
-					tr.enabled = false;
-
-                audio.pitch = 0.5f * 2f * _rigidbody.velocity.magnitude / MAX_SPEED;
-                audio.volume = 0.25f * 2f * _rigidbody.velocity.magnitude / MAX_SPEED;
-
-                StartCoroutine(DisplayReset());
+                Death();
             }
         }
     }
@@ -173,9 +163,11 @@ public class Paperplane : MonoBehaviour {
         {
             //THIS IS OK
             float star_force = 100f;
-            Vector3 accelerationDirection = (other.transform.forward + transform.forward).normalized;
+            _rigidbody.AddForce(transform.forward * star_force * Time.deltaTime, ForceMode.Acceleration);
+
+            //Vector3 accelerationDirection = (other.transform.forward + transform.forward).normalized;
             //star_force /= 10f*(Vector3.Dot(other.transform.forward, transform.forward)+1f)/2f;
-            _rigidbody.AddForce(accelerationDirection * star_force * Time.deltaTime, ForceMode.Acceleration);
+            //_rigidbody.AddForce(accelerationDirection * star_force * Time.deltaTime, ForceMode.Acceleration);
             /*float star_force = 400f;
             //Vector3 accelerationDirection = (other.transform.forward + transform.forward).normalized;
             //star_force /= 10f * (Vector3.Dot(other.transform.forward, transform.forward) + 1f) / 2f;
@@ -207,5 +199,24 @@ public class Paperplane : MonoBehaviour {
         yield return new WaitForSecondsRealtime(4.0f);
         tutorial.SetActive(false);
         reset.SetActive(true);
+        proTips.SetActive(true);
+    }
+
+    public void Death()
+    {
+        collided = true;
+        _rigidbody.velocity = -_rigidbody.velocity * 0.5f;
+        mainCamera.transform.parent = transform.parent;
+        Time.timeScale = 0.5f;
+        GetComponentInChildren<MeshCollider>().isTrigger = false;
+        foreach (TrailRenderer tr in GetComponentsInChildren<TrailRenderer>())
+            tr.enabled = false;
+
+        audio.pitch = 0.5f * 2f * _rigidbody.velocity.magnitude / MAX_SPEED;
+        audio.volume = 0.25f * 2f * _rigidbody.velocity.magnitude / MAX_SPEED;
+
+        deathAudio.Play();
+
+        StartCoroutine(DisplayReset());
     }
 }
