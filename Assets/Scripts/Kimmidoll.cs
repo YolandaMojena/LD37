@@ -8,19 +8,24 @@ public class Kimmidoll : MonoBehaviour {
     [SerializeField]
     Transform RArm;
     [SerializeField]
+    Transform LHand;
+    [SerializeField]
+    Transform RHand;
+    [SerializeField]
     MeshRenderer Hair;
 
-    [SerializeField]
-    private bool gender;
-    private Color hairColor;
+    public bool gender;
+    public Color hairColor;
+    public bool excited = false;
 
     Quaternion LInitialRotation;
     Quaternion RInitialRotation;
     Quaternion initialRotation;
+    private Vector3 ENVELOPE_OFFSET_LEFT = new Vector3(-0.038f, -0.17f, 0);
+    private Vector3 ENVELOPE_OFFSET_RIGHT = new Vector3(0.036f, -0.17f, 0);
 
     const float AMPLITUDE = 10f;
 
-    bool excited = false;
     bool LArm_excited = true;
     bool excitement_boost = false;
     float timer = 0f;
@@ -106,9 +111,6 @@ public class Kimmidoll : MonoBehaviour {
         }
 	}
 
-
-
-
     public void BecomeExcited()
     {
         excited = true;
@@ -127,7 +129,22 @@ public class Kimmidoll : MonoBehaviour {
     {
         hairColor = c;
         Hair.material.SetColor("_EmissionColor", c);
-
     }
 
+    public void HoldMessage(GameObject envelope)
+    {
+        if (LArm_excited)
+        {
+            envelope.transform.position = LHand.position + ENVELOPE_OFFSET_LEFT;
+            envelope.transform.Rotate(new Vector3(0, 180, 180));
+            envelope.transform.SetParent(LHand);
+        }
+
+        else
+        {
+            envelope.transform.position = RHand.position + ENVELOPE_OFFSET_RIGHT;
+            envelope.transform.Rotate(new Vector3(0, 0, 180));
+            envelope.transform.SetParent(RHand);
+        }    
+    }
 }

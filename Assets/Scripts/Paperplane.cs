@@ -135,7 +135,7 @@ public class Paperplane : MonoBehaviour {
 
     void OnTriggerEnter(Collider other)
     {
-        if (!collided)
+        if (!collided && !other.gameObject.name.Contains("envelope"))
         {
             collided = true;
             _rigidbody.velocity = -_rigidbody.velocity * 0.5f;

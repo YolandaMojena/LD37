@@ -17,42 +17,37 @@ public class GameManager : MonoBehaviour {
     [SerializeField]
     private Color[] hairColors;
 
+    public static Paperplane Plane;
+    public int LettersHandedIn = 0;
+    private float timer = 0;
+    private float messageFrequency = 0;
+
     private List<Color> boyColors;
     private List<Color> girlColors;
-
 
     /*const*/
     Vector3 DOLL_OFFSET = new Vector3(0,1.27f, -0.25f);
 
     [SerializeField]
     private List<Kimmidoll> pupils;
-    [SerializeField]
-    private Kimmidoll destinatary;
     private Color destColor;
-    [SerializeField]
-    private Kimmidoll sender;
-
-    
 
     int boys = 8;
     int girls = 8;
 
-    // Use this for initialization
-    void Start () {
-
-        //GameObject newMessage = Instantiate(envelope, transform.position, Quaternion.identity) as GameObject;
-        //newMessage.GetComponent<Message>().SetToradoreo(male, Color.blue);
-
+    void Awake()
+    {
+        pupils = new List<Kimmidoll>();
         boyColors = new List<Color>(hairColors);
         girlColors = new List<Color>(hairColors);
 
         foreach (GameObject chair in GameObject.FindGameObjectsWithTag("Chair"))
         {
-            if(boys == 0)
+            if (boys == 0)
             {
                 SpawnGirl(chair.transform.position);
             }
-            else if(girls == 0)
+            else if (girls == 0)
             {
                 SpawnBoy(chair.transform.position);
             }
@@ -63,28 +58,44 @@ public class GameManager : MonoBehaviour {
                 else
                     SpawnGirl(chair.transform.position);
             }
-
         }
+    }
+
+    // Use this for initialization
+    void Start () {
+
+        Plane = GameObject.Find("paperplane").GetComponent<Paperplane>();
+        messageFrequency = 10 - Mathf.Sqrt(LettersHandedIn);
     }
 	
 	// Update is called once per frame
 	void Update () {
-	
+
+        if (timer >= messageFrequency)
+        {
+            GenerateMessage();
+            timer = 0;
+            messageFrequency = 10 - Mathf.Sqrt(LettersHandedIn);
+        }
+        else
+            timer += Time.deltaTime;
 	}
 
-    void CreateNewMessage()
+    void GenerateMessage()
     {
-        sender = pupils[Random.Range(0, pupils.Count - 1)];
+        Kimmidoll sender = pupils[Random.Range(0, pupils.Count - 1)];
+        while(sender.excited)
+            sender = pupils[Random.Range(0, pupils.Count - 1)];
 
-        destinatary = pupils[Random.Range(0, pupils.Count - 1)];
+        Kimmidoll destinatary = pupils[Random.Range(0, pupils.Count - 1)];
         while(destinatary == sender)
             destinatary = pupils[Random.Range(0, pupils.Count - 1)];
 
         // Place envelope in hand
-        GameObject newMessage = Instantiate(envelope, sender.transform.position, Quaternion.identity) as GameObject;
-
-        Pupil pupilDest = destinatary.GetComponent<Pupil>();
-        newMessage.GetComponent<Message>().SetToradoreo(pupilDest.Gender == 0 ? male : female, pupilDest.HairColor);
+        GameObject newMessage = Instantiate(envelope) as GameObject;
+        newMessage.GetComponent<Message>().SetToradoreo(!destinatary.gender ? male : female, destinatary.hairColor, sender, destinatary);
+        sender.BecomeExcited();
+        sender.HoldMessage(newMessage);
     }
 
     void SpawnBoy(Vector3 position)
