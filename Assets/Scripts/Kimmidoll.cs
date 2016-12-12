@@ -23,7 +23,8 @@ public class Kimmidoll : MonoBehaviour {
     Quaternion LInitialRotation;
     Quaternion RInitialRotation;
     Quaternion initialRotation;
-    private Vector3 ENVELOPE_OFFSET_LEFT = new Vector3(-0.038f, -0.17f, 0);
+    //private Vector3 ENVELOPE_OFFSET_LEFT = new Vector3(-0.038f, -0.17f, 0);
+    private Vector3 ENVELOPE_OFFSET_LEFT = new Vector3(-0.060f, -0.17f, 0);
     private Vector3 ENVELOPE_OFFSET_RIGHT = new Vector3(0.036f, -0.17f, 0);
 
     const float AMPLITUDE = 10f;

@@ -17,6 +17,8 @@ public class GameManager : MonoBehaviour {
     [SerializeField]
     private Color[] hairColors;
 
+    public static Sensei Sensei;
+
     public static Paperplane Plane;
     public static int LettersHandedIn = 0;
     private float timer = 0;
@@ -65,6 +67,7 @@ public class GameManager : MonoBehaviour {
     void Start () {
 
         Plane = GameObject.Find("paperplane").GetComponent<Paperplane>();
+        Sensei = GameObject.Find("Sensei").GetComponent<Sensei>();
         messageFrequency = 10 - Mathf.Sqrt(LettersHandedIn);
     }
 	

@@ -21,9 +21,19 @@ public class Message : MonoBehaviour {
     {
         smallIcon.sprite = icon;
         largeIcon.sprite = icon;
+        BlackHairCheat(color);
         hairColor.material.SetColor("_EmissionColor", color);
         this.sender = sender;
         this.destinatary = destinatary;
+    }
+
+    private void BlackHairCheat(Color color)
+    {
+        if(color == Color.black){
+            foreach(MeshRenderer mr in GetComponentsInChildren<MeshRenderer>())
+                mr.material.SetColor("_EmissionColor", color);
+            hairColor.material.SetColor("_EmissionColor", Color.white);
+        }
     }
 
     void Update()
@@ -35,7 +45,7 @@ public class Message : MonoBehaviour {
     {
         if(!inTransit)
         {
-            if (other.gameObject.name.Contains("paper") && !GameManager.Plane.delivering)
+            if (other.gameObject.name.Contains("paper") && (!GameManager.Plane.delivering || GameManager.Plane.destinatary == destinatary))
             {
                 transform.localScale *= 0.5f;
                 transform.rotation = other.transform.rotation;
@@ -47,12 +57,15 @@ public class Message : MonoBehaviour {
                 inTransit = true;
                 sender.StopExcitement();
                 GameManager.Plane.delivering = true;
+                GameManager.Plane.destinatary = destinatary;
             }
         }
         else if(other.gameObject.tag == "DeliveryArea" && other.transform.root.gameObject == destinatary.gameObject)
         {
             GameManager.LettersHandedIn++;
             GameManager.Plane.delivering = false;
+            GameManager.Plane.destinatary = null;
+            GameManager.Sensei.Wink();
             Destroy(gameObject, 0.2f);
         }
     }

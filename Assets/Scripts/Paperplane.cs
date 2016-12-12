@@ -29,6 +29,7 @@ public class Paperplane : MonoBehaviour {
     GameObject mainCamera;
 
     public bool delivering;
+    public Kimmidoll destinatary;
 
     // Use this for initialization
     void Start () {
