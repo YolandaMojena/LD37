@@ -13,7 +13,6 @@ public class Sensei : MonoBehaviour {
     private Transform Head;
 
     private bool turn = true;
-    private int messagesSent = 0;
 
     private const float INITIAL_FREQ = 10.0f;
     [SerializeField]
@@ -75,6 +74,9 @@ public class Sensei : MonoBehaviour {
 
     void LaunchStar(Vector3 origin){
         GameObject newStar = Instantiate(starPrefab, origin, Quaternion.identity) as GameObject;
+        int i = GameManager.LettersHandedIn;
+        if (i != 1 && i != 3 && i != 5 && i != 7)
+            newStar.GetComponent<AudioSource>().enabled = false;
     }
 
 
