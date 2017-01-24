@@ -10,8 +10,11 @@ public class Paperplane : MonoBehaviour {
 
     Vector3 drag_vector;
     float drag_magnitude = 0f;
+    bool stall = false;
     const float MAX_SPEED = 6f;
-    const float MIN_SPEED = 0.2f;
+    const float MIN_SPEED = 0.8f;
+    const float BASE_LIFT = 9.31f;
+    const float NOOB_FRIENDLY = 1.27f;
 
     public Rigidbody _rigidbody;
 
@@ -19,7 +22,7 @@ public class Paperplane : MonoBehaviour {
     Transform paper;
     float turbulence = 0;
 
-    AudioSource audio;
+    AudioSource audioSource;
 
     [SerializeField]
     AudioSource deathAudio;
@@ -49,7 +52,7 @@ public class Paperplane : MonoBehaviour {
         //paper = GetComponentInChildren<Transform>();
         if (!mainCamera)
             mainCamera = GameObject.FindGameObjectWithTag("MainCamera");
-        audio = GetComponent<AudioSource>();
+        audioSource = GetComponent<AudioSource>();
     }
 
     // Update is called once per frame
@@ -57,24 +60,27 @@ public class Paperplane : MonoBehaviour {
 
         if (!collided)
         {
-            audio.pitch = 0.5f + 2f * _rigidbody.velocity.magnitude / MAX_SPEED;
-            audio.volume = 0.75f * _rigidbody.velocity.magnitude / MAX_SPEED;
+            Quaternion lastRotation = transform.rotation;
+
+            audioSource.pitch = 0.5f + 2f * _rigidbody.velocity.magnitude / MAX_SPEED;
+            audioSource.volume = 0.75f * _rigidbody.velocity.magnitude / MAX_SPEED;
 
             tilt_magnitude = Input.mousePosition.x / (Screen.width / 2f) - 1f;// / 50f;
             pitch_magnitude = Input.mousePosition.y / (Screen.height / 2f) - 1f;// / 50f;
 
-
-
-            //lift_magnitude = Mathf.Pow(_rigidbody.velocity.magnitude, 2) / MAX_SPEED;
-            lift_magnitude = 9.31f + Mathf.Sqrt(_rigidbody.velocity.magnitude) / 6f;
-            //lift_vector = transform.up * lift_magnitude;
+            lift_magnitude = BASE_LIFT + Mathf.Sqrt(_rigidbody.velocity.magnitude) / 6f;
             lift_vector = (Vector3.up + transform.up) / 2f * lift_magnitude;
+            //lift_magnitude = Mathf.Pow(_rigidbody.velocity.magnitude, 2) / MAX_SPEED;
+            //lift_vector = transform.up * lift_magnitude;
+            
+            drag_magnitude = Mathf.Pow(_rigidbody.velocity.magnitude, 9) / Mathf.Pow(MAX_SPEED * 20, 3f) + (Mathf.Sqrt(Mathf.Pow(tilt_magnitude, 2) + Mathf.Pow(pitch_magnitude, 2)) * 2f * _rigidbody.velocity.magnitude / MAX_SPEED);
+            drag_vector = -_rigidbody.velocity.normalized * drag_magnitude;
             //drag_vector = -_rigidbody.velocity.normalized * Mathf.Pow(_rigidbody.velocity.magnitude, 2)/MAX_SPEED;
             /*drag_magnitude = Mathf.Pow(_rigidbody.velocity.magnitude, 4) / 125f - 1f;
             if (drag_magnitude < 0f)
                 drag_magnitude = 0;*/
-            drag_magnitude = Mathf.Pow(_rigidbody.velocity.magnitude, 9) / Mathf.Pow(MAX_SPEED * 20, 3f) + (Mathf.Sqrt(Mathf.Pow(tilt_magnitude, 2) + Mathf.Pow(pitch_magnitude, 2)) * 2f * _rigidbody.velocity.magnitude / MAX_SPEED);
-            drag_vector = -_rigidbody.velocity.normalized * drag_magnitude;
+            
+            
             //lift_magnitude = (9.81f - 1f) + _rigidbody.velocity.magnitude;
             //_rigidbody.velocity += lift_vector * lift_magnitude * Time.deltaTime;
 
@@ -84,21 +90,51 @@ public class Paperplane : MonoBehaviour {
             _rigidbody.AddForce(drag_vector / 2f, ForceMode.Acceleration);
 
             // TILT
-            //Vector3 fixedRigthVector = -Vector3.Cross(_rigidbody.velocity, transform.up);
-            _rigidbody.AddForce(transform.right * tilt_magnitude * _rigidbody.velocity.magnitude, ForceMode.Acceleration);
-            //_rigidbody.AddForce(fixedRigthVector * tilt_magnitude * _rigidbody.velocity.magnitude / MAX_SPEED / 4f, ForceMode.Acceleration);
+            _rigidbody.AddForce(transform.right * tilt_magnitude * (GameManager.NoobFriendly ? NOOB_FRIENDLY : 1f) * _rigidbody.velocity.magnitude, ForceMode.Acceleration);
             _rigidbody.AddTorque(transform.forward * -tilt_magnitude * _rigidbody.velocity.magnitude * 2f, ForceMode.Acceleration);
+            //Vector3 fixedRigthVector = -Vector3.Cross(_rigidbody.velocity, transform.up);
+            //_rigidbody.AddForce(fixedRigthVector * tilt_magnitude * _rigidbody.velocity.magnitude / MAX_SPEED / 4f, ForceMode.Acceleration);
             //_rigidbody.AddTorque(transform.up * tilt_magnitude / 10f, ForceMode.Acceleration);
 
             // PITCH
-            _rigidbody.AddForce(transform.up * pitch_magnitude * _rigidbody.velocity.magnitude, ForceMode.Acceleration);
+            _rigidbody.AddForce(transform.up * pitch_magnitude * (GameManager.NoobFriendly ? NOOB_FRIENDLY : 1f) * _rigidbody.velocity.magnitude, ForceMode.Acceleration);
             _rigidbody.AddTorque(transform.right * -pitch_magnitude * _rigidbody.velocity.magnitude / MAX_SPEED, ForceMode.Acceleration);
 
-            if (_rigidbody.velocity.magnitude < MIN_SPEED)
-                transform.LookAt(Vector3.Lerp(transform.position + transform.forward, transform.position + Vector3.down, Time.deltaTime * 5));
-            else
-                transform.LookAt(transform.position + _rigidbody.velocity);
+
+            //if (_rigidbody.velocity.magnitude < MIN_SPEED)
+            //    _rigidbody.AddForce(-transform.up / Mathf.Pow(_rigidbody.velocity.magnitude, 2), ForceMode.Acceleration);
+            //_rigidbody.AddForce(-transform.up * 2f * (lift_magnitude - BASE_LIFT), ForceMode.Acceleration);
+            //transform.LookAt(Vector3.Lerp(transform.position + transform.forward, transform.position + Vector3.down, Time.deltaTime * 5));
+            //else
+
             //transform.LookAt(Vector3.Lerp(transform.position + transform.forward, transform.position + _rigidbody.velocity, Time.deltaTime * 200));
+
+            
+            //transform.LookAt(Vector3.Lerp(transform.position + transform.forward, transform.position + _rigidbody.velocity, Time.deltaTime + _rigidbody.velocity.magnitude));
+            
+            if (transform.eulerAngles.x > 265 && transform.eulerAngles.x < 285) {
+                if (_rigidbody.velocity.magnitude < MIN_SPEED)
+                {
+                    stall = true;
+                }
+                //transform.eulerAngles = new Vector3(transform.eulerAngles.x + 90f * Time.deltaTime, transform.eulerAngles.y, transform.eulerAngles.z);
+                
+            }
+
+            if (stall)
+            {
+                _rigidbody.angularVelocity = Vector3.zero;
+                //transform.LookAt(transform.position + Vector3.Lerp(transform.forward, -transform.up, Time.deltaTime));
+                //transform.eulerAngles = new Vector3(transform.eulerAngles.x + 90f*Time.deltaTime, transform.eulerAngles.y, transform.eulerAngles.z);
+                _rigidbody.velocity = Vector3.zero;
+                transform.Rotate(transform.right, -10f);
+                if (Vector3.Angle(transform.forward, Vector3.down) < 45f)
+                    stall = false;
+            }
+            else
+            {
+                transform.LookAt(transform.position + _rigidbody.velocity);
+            }
 
             VisualTilt();
         }
@@ -190,6 +226,7 @@ public class Paperplane : MonoBehaviour {
     {
         //Debug.Log("-----------------------------------");
         //Debug.Log("Velocity: " + _rigidbody.velocity.magnitude + " Lift: " + lift_magnitude + " Drag: " + drag_magnitude);
+        Debug.Log(transform.up);
         //Debug.Log("Tilt: " + tilt_magnitude + " Pitch: " + pitch_magnitude);
         //Debug.Log(paper.rotation.eulerAngles.z + ", " + -tilt_magnitude * 60f);
     }
@@ -212,8 +249,8 @@ public class Paperplane : MonoBehaviour {
         foreach (TrailRenderer tr in GetComponentsInChildren<TrailRenderer>())
             tr.enabled = false;
 
-        audio.pitch = 0.5f * 2f * _rigidbody.velocity.magnitude / MAX_SPEED;
-        audio.volume = 0.25f * 2f * _rigidbody.velocity.magnitude / MAX_SPEED;
+        audioSource.pitch = 0.5f * 2f * _rigidbody.velocity.magnitude / MAX_SPEED;
+        audioSource.volume = 0.25f * 2f * _rigidbody.velocity.magnitude / MAX_SPEED;
 
         deathAudio.Play();
 

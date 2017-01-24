@@ -20,6 +20,7 @@ public class GameManager : MonoBehaviour {
     
     private static AudioSource audioSource;
     private static bool muted = false;
+    public static bool NoobFriendly = false;
     //[SerializeField]
     //private AudioClip audioClip;
     
